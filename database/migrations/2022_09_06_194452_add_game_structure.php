@@ -36,12 +36,28 @@ return new class extends Migration
             $table->foreignUuid('user_id')->references('slug')->on('users');
         });
 
+        Schema::create('groups', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->string('name');
+            $table->timestamps();
+        });
+
         Schema::create('teams', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name');
             $table->string('icon');
             $table->timestamps();
         });
+
+        Schema::create('teams_groups_tournaments', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->foreignUuid('team_id')->references('id')->on('teams');
+            $table->foreignUuid('group_id')->references('id')->on('groups');
+            $table->foreignUuid('tournament_id')->references('id')->on('tournaments');
+
+            $table->timestamps();
+        });
+
         Schema::create('stages', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name');
@@ -58,7 +74,7 @@ return new class extends Migration
             $table->foreignUuid('home_team_id')->references('id')->on('teams');
             $table->foreignUuid('out_team_id')->references('id')->on('teams');
 
-            $table->uuid('winner_id')->nullable()->index();;
+            $table->uuid('winner_id')->nullable()->index();
             $table->foreign('winner_id')->references('id')->on('teams');
 
             $table->integer('home_team_score')->nullable();

@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Team extends Model
 {
+    // add url-slug to sync with
+    // icon nullable
     use HasFactory;
     use Uuids;
     protected $fillable = [

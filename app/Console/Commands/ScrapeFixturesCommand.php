@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Group;
+use App\Models\Team;
 use Illuminate\Console\Command;
 
 class ScrapeFixturesCommand extends Command
@@ -11,7 +13,7 @@ class ScrapeFixturesCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'command:name';
+    protected $signature = 'wk:scrape';
 
     /**
      * The console command description.
@@ -27,7 +29,65 @@ class ScrapeFixturesCommand extends Command
      */
     public function handle()
     {
-        //https://www.google.com/search?q=world+cup+qatar+fixtures+2022&rlz=1C5CHFA_enBE919BE919&sxsrf=ALiCzsY3Y_Rl1FyBtK8WnChcuVP1btPQhg%3A1663273551262&ei=T4ojY86lD_WE9u8P3Mq84AQ&oq=world+cup+qatar+fixtures+&gs_lcp=Cgxnd3Mtd2l6LXNlcnAQAxgAMgUIABCABDIFCAAQgAQyBQgAEIAEMgYIABAeEBYyBggAEB4QFjIGCAAQHhAWMgYIABAeEBYyBggAEB4QFjIGCAAQHhAWMgYIABAeEBY6CggAEEcQ1gQQsAM6BAgjECc6BggjECcQEzoFCAAQkQI6CwgAEIAEELEDEIMBOggIABCxAxCDAToLCC4QgAQQsQMQgwE6EQguEIAEELEDEIMBEMcBENEDOhMILhCABBCHAhCxAxCDARDUAhAUOgoIABCABBCHAhAUOggILhCABBCxAzoKCAAQsQMQgwEQQzoNCC4QsQMQgwEQ1AIQQzoLCC4QsQMQgwEQ1AI6DgguEIAEELEDEMcBEK8BOg4ILhCABBCxAxCDARDUAjoICAAQgAQQsQNKBAhBGABKBAhGGABQwwpYkiFgjC1oBHAAeACAAYIBiAGPA5IBAzIuMpgBAKABAcgBCMABAQ&sclient=gws-wiz-serp#sie=lg;/m/0fp_8fm;2;/m/030q7;mt;fp;1;;;
+        $data = json_decode(file_get_contents(resource_path('data/wc.json')));
+
+        $teams = [];
+        $rounds = [];
+        $games = [];
+
+        $bar = $this->output->createProgressBar(count($data));
+
+        $bar->start();
+
+        /**  6 => {#708
+         * +"MatchNumber": 7
+         * +"RoundNumber": 1
+         * +"DateUtc": "2022-11-22 16:00:00Z"
+         * +"Location": "Stadium 974"
+         * +"HomeTeam": "Mexico"
+         * +"AwayTeam": "Poland"
+         * +"Group": "Group C"
+         * +"HomeTeamScore": null
+         * +"AwayTeamScore": null
+         * }**/
+
+
+        foreach ($data as $entry) {
+            if (!empty($entry->Group)) {
+                if (empty($groups[$entry->Group])) {
+                    $group = Group::updateOrCreate(
+                        ['name' => $entry->Group],
+                        ['name' => $entry->Group]
+                    );
+                    $groups[$entry->Group] = $group;
+                }
+            }
+
+            if (!empty($entry->HomeTeam)) {
+                if (empty($teams[$entry->HomeTeam])) {
+                    $team = Team::updateOrCreate(
+                        ['name' => $entry->HomeTeam, 'icon' => 'X'],
+                        ['name' => $entry->HomeTeam, 'icon' => 'X']
+                    );
+
+                    $teams[$entry->HomeTeam] = $team;
+                }
+            }
+
+            if (!empty($entry->AwayTeam)) {
+                if (empty($teams[$entry->AwayTeam])) {
+                    $team = Team::updateOrCreate(
+                        ['name' => $entry->AwayTeam, 'icon' => 'X'],
+                        ['name' => $entry->AwayTeam, 'icon' => 'X']
+                    );
+
+                    $teams[$entry->AwayTeam] = $team;
+                }
+            }
+
+            $bar->advance();
+        }
+
         return 0;
     }
 }

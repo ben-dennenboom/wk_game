@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\League;
+use App\Models\Stage;
 use App\Models\Tournament;
 use Illuminate\Database\Seeder;
 
@@ -36,5 +37,20 @@ class DatabaseSeeder extends Seeder
                 'tournament_id' => $tournament->id,
             ],
         );
+
+        $stages = ['Group', 'Round of 16', 'Quarter-finals', 'Semi-finals', 'Final'];
+
+        foreach ($stages as $stage){
+            Stage::updateOrCreate(
+                [
+                    'name' => $stage,
+                    'tournament_id' => $tournament->id,
+                ],
+                [
+                    'name' => $stage,
+                    'tournament_id' => $tournament->id,
+                ],
+            );
+        }
     }
 }

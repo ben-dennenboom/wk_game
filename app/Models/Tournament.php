@@ -11,6 +11,7 @@ class Tournament extends Model
 {
     use HasFactory;
     use Uuids;
+    use CrudTrait;
 
     protected $fillable = [
         'title',

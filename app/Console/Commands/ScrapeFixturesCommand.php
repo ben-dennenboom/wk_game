@@ -2,8 +2,12 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Game;
 use App\Models\Group;
+use App\Models\Stage;
 use App\Models\Team;
+use App\Models\Tournament;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class ScrapeFixturesCommand extends Command
@@ -63,28 +67,42 @@ class ScrapeFixturesCommand extends Command
                 }
             }
 
+            $gameDate = Carbon::createFromFormat('Y-m-d H:i:sZ', $entry->DateUtc);
+            $game = new Game(
+                [
+                    'start' => $gameDate
+                ]
+            );
+
             if (!empty($entry->HomeTeam)) {
                 if (empty($teams[$entry->HomeTeam])) {
-                    $team = Team::updateOrCreate(
+                    $teamHome = Team::updateOrCreate(
                         ['name' => $entry->HomeTeam, 'icon' => 'X'],
                         ['name' => $entry->HomeTeam, 'icon' => 'X']
                     );
 
-                    $teams[$entry->HomeTeam] = $team;
+                    $teams[$entry->HomeTeam] = $teamHome;
+                    $game->home_team_id = $teamHome->id;
                 }
             }
 
             if (!empty($entry->AwayTeam)) {
                 if (empty($teams[$entry->AwayTeam])) {
-                    $team = Team::updateOrCreate(
+                    $teamAway = Team::updateOrCreate(
                         ['name' => $entry->AwayTeam, 'icon' => 'X'],
                         ['name' => $entry->AwayTeam, 'icon' => 'X']
                     );
 
-                    $teams[$entry->AwayTeam] = $team;
+                    $teams[$entry->AwayTeam] = $teamAway;
+                    $game->out_team_id = $teamAway->id;
                 }
             }
 
+            if (!empty($game->home_team_id) && !empty($game->out_team_id)) {
+                $game->tournament_id = Tournament::first()->id;
+                $game->stage_id = Stage::where('name', 'Group')->firstOrFail()->id;
+                $game->save();
+            }
             $bar->advance();
         }
 

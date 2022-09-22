@@ -61,6 +61,7 @@ return new class extends Migration
         Schema::create('stages', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name');
+            $table->integer('number')->nullable();
             $table->foreignUuid('tournament_id')->references('id')->on('tournaments');
 
             $table->timestamps();
@@ -71,8 +72,11 @@ return new class extends Migration
             $table->foreignUuid('tournament_id')->references('id')->on('tournaments');
             $table->foreignUuid('stage_id')->references('id')->on('stages');
 
-            $table->foreignUuid('home_team_id')->references('id')->on('teams');
-            $table->foreignUuid('out_team_id')->references('id')->on('teams');
+            $table->uuid('home_team_id')->nullable()->index();
+            $table->uuid('out_team_id')->nullable()->index();
+
+            $table->foreign('home_team_id')->references('id')->on('teams');
+            $table->foreign('out_team_id')->references('id')->on('teams');
 
             $table->uuid('winner_id')->nullable()->index();
             $table->foreign('winner_id')->references('id')->on('teams');

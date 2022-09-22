@@ -74,11 +74,13 @@ class ScrapeFixturesCommand extends Command
                 ]
             );
 
-            if (!empty($entry->HomeTeam)) {
+            if (!empty($entry->HomeTeam) && $entry->HomeTeam != 'To be announced' && !is_numeric(
+                    substr($entry->HomeTeam, 0, 1)
+                )) {
                 if (empty($teams[$entry->HomeTeam])) {
                     $teamHome = Team::updateOrCreate(
-                        ['name' => $entry->HomeTeam, 'icon' => 'X'],
-                        ['name' => $entry->HomeTeam, 'icon' => 'X']
+                        ['name' => $entry->HomeTeam, 'icon' => $entry->HomeTeam],
+                        ['name' => $entry->HomeTeam, 'icon' => $entry->HomeTeam]
                     );
 
                     $teams[$entry->HomeTeam] = $teamHome;
@@ -86,11 +88,13 @@ class ScrapeFixturesCommand extends Command
                 }
             }
 
-            if (!empty($entry->AwayTeam)) {
+            if (!empty($entry->AwayTeam) && $entry->AwayTeam != 'To be announced' && !is_numeric(
+                    substr($entry->AwayTeam, 0, 1)
+                )) {
                 if (empty($teams[$entry->AwayTeam])) {
                     $teamAway = Team::updateOrCreate(
-                        ['name' => $entry->AwayTeam, 'icon' => 'X'],
-                        ['name' => $entry->AwayTeam, 'icon' => 'X']
+                        ['name' => $entry->AwayTeam, 'icon' => $entry->AwayTeam],
+                        ['name' => $entry->AwayTeam, 'icon' => $entry->AwayTeam]
                     );
 
                     $teams[$entry->AwayTeam] = $teamAway;
@@ -98,11 +102,18 @@ class ScrapeFixturesCommand extends Command
                 }
             }
 
-            if (!empty($game->home_team_id) && !empty($game->out_team_id)) {
-                $game->tournament_id = Tournament::first()->id;
-                $game->stage_id = Stage::where('name', 'Group')->firstOrFail()->id;
-                $game->save();
+            $game->tournament_id = Tournament::first()->id;
+            $number = $entry->RoundNumber;
+
+            if ($number == 2 || $number == 3) {
+                $number = 1;
             }
+            if($number > 3) {
+                $number -= 2;
+            }
+            $game->stage_id = Stage::where('number', $number)->firstOrFail()->id;
+            $game->save();
+
             $bar->advance();
         }
 

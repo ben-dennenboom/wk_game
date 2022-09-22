@@ -40,17 +40,21 @@ class DatabaseSeeder extends Seeder
 
         $stages = ['Group', 'Round of 16', 'Quarter-finals', 'Semi-finals', 'Final'];
 
+        $i = 1;
         foreach ($stages as $stage){
             Stage::updateOrCreate(
                 [
                     'name' => $stage,
+                    'number' => $i,
                     'tournament_id' => $tournament->id,
                 ],
                 [
                     'name' => $stage,
+                    'number' => $i,
                     'tournament_id' => $tournament->id,
                 ],
             );
+            $i++;
         }
     }
 }

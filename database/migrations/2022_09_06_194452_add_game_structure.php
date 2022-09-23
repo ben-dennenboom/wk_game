@@ -73,16 +73,21 @@ return new class extends Migration
             $table->foreignUuid('stage_id')->references('id')->on('stages');
 
             $table->uuid('home_team_id')->nullable()->index();
-            $table->uuid('out_team_id')->nullable()->index();
+            $table->uuid('away_team_id')->nullable()->index();
 
             $table->foreign('home_team_id')->references('id')->on('teams');
-            $table->foreign('out_team_id')->references('id')->on('teams');
+            $table->foreign('away_team_id')->references('id')->on('teams');
 
             $table->uuid('winner_id')->nullable()->index();
             $table->foreign('winner_id')->references('id')->on('teams');
 
+            $table->boolean('end_in_draw')->default(0);
+
             $table->integer('home_team_score')->nullable();
-            $table->integer('out_team_score')->nullable();
+            $table->integer('away_team_score')->nullable();
+
+            $table->integer('home_team_penalty_score')->nullable();
+            $table->integer('away_team_penalty_score')->nullable();
 
             $table->dateTime('start')->nullable();
 

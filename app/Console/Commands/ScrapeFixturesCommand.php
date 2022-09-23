@@ -98,7 +98,7 @@ class ScrapeFixturesCommand extends Command
                     );
 
                     $teams[$entry->AwayTeam] = $teamAway;
-                    $game->out_team_id = $teamAway->id;
+                    $game->away_team_id = $teamAway->id;
                 }
             }
 

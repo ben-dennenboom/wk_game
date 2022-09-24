@@ -16,7 +16,6 @@ abstract class TestCase extends BaseTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed();
-        Artisan::call('wk:scrape');
+        Artisan::call('wk:setup');
     }
 }

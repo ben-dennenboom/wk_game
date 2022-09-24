@@ -36,8 +36,7 @@ class ScrapeFixturesCommand extends Command
         $data = json_decode(file_get_contents(resource_path('data/wc.json')));
 
         $teams = [];
-        $rounds = [];
-        $games = [];
+        $groups = [];
 
         $bar = $this->output->createProgressBar(count($data));
 
@@ -83,9 +82,14 @@ class ScrapeFixturesCommand extends Command
                         ['name' => $entry->HomeTeam, 'icon' => $entry->HomeTeam]
                     );
 
+                    if(!empty($entry->Group)){
+                        $teamHome->group_id = $groups[$entry->Group]->id;
+                        $teamHome->save();
+                    }
+
                     $teams[$entry->HomeTeam] = $teamHome;
-                    $game->home_team_id = $teamHome->id;
                 }
+                $game->home_team_id = $teams[$entry->HomeTeam]->id;
             }
 
             if (!empty($entry->AwayTeam) && $entry->AwayTeam != 'To be announced' && !is_numeric(
@@ -97,9 +101,15 @@ class ScrapeFixturesCommand extends Command
                         ['name' => $entry->AwayTeam, 'icon' => $entry->AwayTeam]
                     );
 
+                    if(!empty($entry->Group)){
+                        $teamAway->group_id = $groups[$entry->Group]->id;
+                        $teamAway->save();
+                    }
+
                     $teams[$entry->AwayTeam] = $teamAway;
-                    $game->away_team_id = $teamAway->id;
                 }
+
+                $game->away_team_id = $teams[$entry->AwayTeam]->id;
             }
 
             $game->tournament_id = Tournament::first()->id;
@@ -112,6 +122,11 @@ class ScrapeFixturesCommand extends Command
                 $number -= 2;
             }
             $game->stage_id = Stage::where('number', $number)->firstOrFail()->id;
+
+            if(!empty($entry->Group) && !empty($game->awayTeam) &&  !empty($game->homeTeam)){
+                $game->group_id = $groups[$entry->Group]->id;
+            }
+
             $game->save();
 
             $bar->advance();

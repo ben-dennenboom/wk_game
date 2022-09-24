@@ -46,6 +46,10 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('name');
             $table->string('icon');
+
+            $table->uuid('group_id')->nullable()->index();
+            $table->foreign('group_id')->references('id')->on('groups');
+
             $table->timestamps();
         });
 
@@ -71,6 +75,9 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('tournament_id')->references('id')->on('tournaments');
             $table->foreignUuid('stage_id')->references('id')->on('stages');
+
+            $table->uuid('group_id')->nullable()->index();
+            $table->foreign('group_id')->references('id')->on('groups');
 
             $table->uuid('home_team_id')->nullable()->index();
             $table->uuid('away_team_id')->nullable()->index();

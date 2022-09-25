@@ -46,48 +46,52 @@ class TournamentTest extends TestCase
         ];
 
         $result = [
-            0 => [
+            Team::where('name', 'Belgium')->firstOrFail()->id => [
                 'place' => 1,
-                'team' => Team::where('name', 'Belgium')->firstOrFail(),
+                'team' => Team::where('name', 'Belgium')->firstOrFail()->name,
                 'played' => 3,
                 'won' => 3,
                 'lost' => 0,
                 'draw' => 0,
                 'goals' => 9,
                 'goals_against' => 1,
+                'goals_diff' => 8,
                 'points' => 9,
             ],
-            1 => [
+            Team::where('name', 'Croatia')->firstOrFail()->id => [
                 'place' => 2,
-                'team' => Team::where('name', 'Croatia')->firstOrFail(),
+                'team' => Team::where('name', 'Croatia')->firstOrFail()->name,
                 'played' => 3,
                 'won' => 2,
                 'lost' => 1,
                 'draw' => 0,
                 'goals' => 6,
                 'goals_against' => 4,
+                'goals_diff' => 2,
                 'points' => 6,
             ],
-            2 => [
+            Team::where('name', 'Morocco')->firstOrFail()->id => [
                 'place' => 3,
-                'team' => Team::where('name', 'Morocco')->firstOrFail(),
+                'team' => Team::where('name', 'Morocco')->firstOrFail()->name,
                 'played' => 3,
                 'won' => 0,
                 'lost' => 2,
                 'draw' => 1,
                 'goals' => 2,
                 'goals_against' => 4,
+                'goals_diff' => -2,
                 'points' => 1,
             ],
-            3 => [
+            Team::where('name', 'Canada')->firstOrFail()->id => [
                 'place' => 4,
-                'team' => Team::where('name', 'Canada')->firstOrFail(),
+                'team' => Team::where('name', 'Canada')->firstOrFail()->name,
                 'played' => 3,
                 'won' => 0,
                 'lost' => 2,
                 'draw' => 1,
                 'goals' => 2,
                 'goals_against' => 10,
+                'goals_diff' => -8,
                 'points' => 1,
             ],
         ];

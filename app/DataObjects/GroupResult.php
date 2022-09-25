@@ -82,9 +82,14 @@ class GroupResult
         }
 
         // order by stats
-        // todo: check for full sort rules
         uasort($this->result, function ($a, $b) {
             if ($a['points'] === $b['points']) {
+                if ($a['goals_diff'] === $b['goals_diff']) {
+                    if ($a['goals'] === $b['goals']) {
+                        return 0;// Todo: Check onderling duel
+                    }
+                    return ($a['goals'] > $b['goals']) ? -1 : 1;
+                }
                 return ($a['goals_diff'] > $b['goals_diff']) ? -1 : 1;
             }
 

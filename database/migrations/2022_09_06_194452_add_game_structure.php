@@ -73,6 +73,8 @@ return new class extends Migration
 
         Schema::create('games', function (Blueprint $table) {
             $table->uuid('id')->primary();
+
+            $table->string('slug')->nullable();
             $table->foreignUuid('tournament_id')->references('id')->on('tournaments');
             $table->foreignUuid('stage_id')->references('id')->on('stages');
 
@@ -99,6 +101,11 @@ return new class extends Migration
             $table->dateTime('start')->nullable();
 
             $table->boolean('finished')->default(0);
+
+            $table->boolean('is_calculated')->default(0);
+
+            $table->string('get_home_from_slug')->nullable();
+            $table->string('get_away_from_slug')->nullable();
 
             $table->timestamps();
         });

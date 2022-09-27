@@ -56,7 +56,16 @@ class ScrapeFixturesCommand extends Command
 
 
         foreach ($data as $entry) {
+            $gameDate = Carbon::createFromFormat('Y-m-d H:i:sZ', $entry->DateUtc);
+            $game = new Game(
+                [
+                    'start' => $gameDate
+                ]
+            );
+
             if (!empty($entry->Group)) {
+                $game->is_calculated = 0;
+
                 if (empty($groups[$entry->Group])) {
                     $group = Group::updateOrCreate(
                         ['name' => $entry->Group],
@@ -65,13 +74,9 @@ class ScrapeFixturesCommand extends Command
                     $groups[$entry->Group] = $group;
                 }
             }
-
-            $gameDate = Carbon::createFromFormat('Y-m-d H:i:sZ', $entry->DateUtc);
-            $game = new Game(
-                [
-                    'start' => $gameDate
-                ]
-            );
+            else {
+                $game->is_calculated = 1;
+            }
 
             if (!empty($entry->HomeTeam) && $entry->HomeTeam != 'To be announced' && !is_numeric(
                     substr($entry->HomeTeam, 0, 1)
@@ -82,7 +87,7 @@ class ScrapeFixturesCommand extends Command
                         ['name' => $entry->HomeTeam, 'icon' => $entry->HomeTeam]
                     );
 
-                    if(!empty($entry->Group)){
+                    if (!empty($entry->Group)) {
                         $teamHome->group_id = $groups[$entry->Group]->id;
                         $teamHome->save();
                     }
@@ -90,6 +95,14 @@ class ScrapeFixturesCommand extends Command
                     $teams[$entry->HomeTeam] = $teamHome;
                 }
                 $game->home_team_id = $teams[$entry->HomeTeam]->id;
+            }
+
+            if (is_numeric(substr($entry->HomeTeam, 0, 1))) {
+                $game->get_home_from_slug = $entry->HomeTeam;
+            }
+
+            if (is_numeric(substr($entry->AwayTeam, 0, 1))) {
+                $game->get_away_from_slug = $entry->AwayTeam;
             }
 
             if (!empty($entry->AwayTeam) && $entry->AwayTeam != 'To be announced' && !is_numeric(
@@ -101,7 +114,7 @@ class ScrapeFixturesCommand extends Command
                         ['name' => $entry->AwayTeam, 'icon' => $entry->AwayTeam]
                     );
 
-                    if(!empty($entry->Group)){
+                    if (!empty($entry->Group)) {
                         $teamAway->group_id = $groups[$entry->Group]->id;
                         $teamAway->save();
                     }

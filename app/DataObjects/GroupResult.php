@@ -3,6 +3,7 @@
 namespace App\DataObjects;
 
 use App\Models\Group;
+use App\Models\Team;
 use Illuminate\Database\Eloquent\Collection;
 
 class GroupResult
@@ -25,6 +26,29 @@ class GroupResult
     public function getResult(): array
     {
         return $this->result;
+    }
+
+    public function getFirstTeam(): ?Team
+    {
+        return $this->getTeam(1);
+    }
+
+    public function getSecondTeam(): ?Team
+    {
+        return $this->getTeam(2);
+    }
+
+    public function getTeam($place): ?Team
+    {
+        $item = array_filter($this->result, function ($item) use ($place) {
+            return $item['place'] == $place;
+        });
+
+        if (empty($item)) {
+            return null;
+        }
+
+        return Team::where('id', array_keys($item))->firstOrFail();
     }
 
     private function calculateResult()

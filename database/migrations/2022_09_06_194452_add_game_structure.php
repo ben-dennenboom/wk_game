@@ -90,6 +90,9 @@ return new class extends Migration
             $table->uuid('winner_id')->nullable()->index();
             $table->foreign('winner_id')->references('id')->on('teams');
 
+            $table->uuid('loser_id')->nullable()->index();
+            $table->foreign('loser_id')->references('id')->on('teams');
+
             $table->boolean('end_in_draw')->default(0);
 
             $table->integer('home_team_score')->nullable();
@@ -106,6 +109,18 @@ return new class extends Migration
 
             $table->string('get_home_from_slug')->nullable();
             $table->string('get_away_from_slug')->nullable();
+
+            $table->uuid('home_from_winner_game_id')->nullable()->index();
+            $table->uuid('away_from_winner_game_id')->nullable()->index();
+
+            $table->foreign('home_from_winner_game_id')->references('id')->on('games');
+            $table->foreign('away_from_winner_game_id')->references('id')->on('games');
+
+            $table->uuid('home_from_loser_game_id')->nullable()->index();
+            $table->uuid('away_from_loser_game_id')->nullable()->index();
+
+            $table->foreign('home_from_loser_game_id')->references('id')->on('games');
+            $table->foreign('away_from_loser_game_id')->references('id')->on('games');
 
             $table->timestamps();
         });

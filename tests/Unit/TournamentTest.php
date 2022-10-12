@@ -189,8 +189,8 @@ class TournamentTest extends TestCase
                 'tournament_id' => $tournament->id,
                 'stage_id' => $stage->id,
                 'is_calculated' => 1,
-                'get_home_from_slug' => 'F1',
-                'get_away_from_slug' => 'F2',
+                'get_home_from_slug' => '1F',
+                'get_away_from_slug' => '2F',
             ]
         );
 
@@ -210,21 +210,41 @@ class TournamentTest extends TestCase
 
     public function test_full_tournament()
     {
-        // Simulate full tournament where home team always wins with 2 - 0
-        // winner should be A1 => Qatar?
-        $groups = Group::all();
+        // Simulate full tournament where Belgium always wins
+        // winner should be Belgium
 
-        foreach ($groups as $group) {
-            foreach ($group->games as $game) {
-                GameService::setScore($game, 2, 0);
+        $winner = Team::where('name', 'Belgium')->firstOrFail();
+
+        $groupStage = Stage::where('number', 1)->firstOrFail();
+        foreach ($groupStage->games as $game) {
+            if ($game->away_team_id !== $winner->id) {
+                GameService::setScore($game, 2, 0);// make sure the $winner always wins
+            } else {
+                GameService::setScore($game, 0, 2);
             }
         }
 
-        foreach ($groups as $group) {
+        foreach (Group::all() as $group) {
             TournamentService::calculateGamesFromGroup($group);
         }
 
-        // link later stage games to get team from winner
+        $stages = Stage::whereNot('number', 1)->orderBy('number')->get();
+
+        foreach ($stages as $stage) {
+            foreach ($stage->games as $game) {
+                if ($game->away_team_id !== $winner->id) {
+                    GameService::setScore($game, 2, 0);// make sure the $winner always wins
+                } else {
+                    GameService::setScore($game, 0, 2);
+                }
+            }
+        }
+
+        $final = Game::where('match_number', 64)->firstOrFail();
+        $final->refresh();
+
+        // test
+        $this->assertEquals($final->winner_id, $winner->id);
     }
 
     private function getGroupScores(): array

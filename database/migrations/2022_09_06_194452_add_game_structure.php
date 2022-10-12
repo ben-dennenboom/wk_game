@@ -72,7 +72,7 @@ return new class extends Migration
         });
 
         Schema::create('games', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->uuid('id')->unique()->index()->primary();
 
             $table->string('slug')->nullable();
             $table->foreignUuid('tournament_id')->references('id')->on('tournaments');
@@ -101,6 +101,8 @@ return new class extends Migration
             $table->integer('home_team_penalty_score')->nullable();
             $table->integer('away_team_penalty_score')->nullable();
 
+            $table->integer('match_number')->nullable();
+
             $table->dateTime('start')->nullable();
 
             $table->boolean('finished')->default(0);
@@ -113,14 +115,14 @@ return new class extends Migration
             $table->uuid('home_from_winner_game_id')->nullable()->index();
             $table->uuid('away_from_winner_game_id')->nullable()->index();
 
-            $table->foreign('home_from_winner_game_id')->references('id')->on('games');
-            $table->foreign('away_from_winner_game_id')->references('id')->on('games');
+            //$table->foreign('home_from_winner_game_id')->references('id')->on('games');
+            //$table->foreign('away_from_winner_game_id')->references('id')->on('games');
 
             $table->uuid('home_from_loser_game_id')->nullable()->index();
             $table->uuid('away_from_loser_game_id')->nullable()->index();
 
-            $table->foreign('home_from_loser_game_id')->references('id')->on('games');
-            $table->foreign('away_from_loser_game_id')->references('id')->on('games');
+            //$table->foreign('home_from_loser_game_id')->references('id')->on('games');
+            //$table->foreign('away_from_loser_game_id')->references('id')->on('games');
 
             $table->timestamps();
         });

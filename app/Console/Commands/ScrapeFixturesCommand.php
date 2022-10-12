@@ -54,7 +54,7 @@ class ScrapeFixturesCommand extends Command
          * +"AwayTeamScore": null
          * }**/
 
-
+        $gameIds = [];
         foreach ($data as $entry) {
             $gameDate = Carbon::createFromFormat('Y-m-d H:i:sZ', $entry->DateUtc);
             $game = new Game(
@@ -62,6 +62,8 @@ class ScrapeFixturesCommand extends Command
                     'start' => $gameDate
                 ]
             );
+            $game->match_number = $entry->MatchNumber;
+            $game->slug = 'game_' . $entry->MatchNumber;
 
             if (!empty($entry->Group)) {
                 $game->is_calculated = 0;
@@ -78,9 +80,12 @@ class ScrapeFixturesCommand extends Command
                 $game->is_calculated = 1;
             }
 
-            if (!empty($entry->HomeTeam) && $entry->HomeTeam != 'To be announced' && !is_numeric(
-                    substr($entry->HomeTeam, 0, 1)
-                )) {
+            if (!empty($entry->HomeTeam) &&
+                $entry->HomeTeam != 'To be announced' &&
+                !is_numeric(substr($entry->HomeTeam, 0, 1)) &&
+                strpos($entry->HomeTeam, 'Winners of') === false &&
+                strpos($entry->HomeTeam, 'Losers of') === false
+            ) {
                 if (empty($teams[$entry->HomeTeam])) {
                     $teamHome = Team::updateOrCreate(
                         ['name' => $entry->HomeTeam, 'icon' => $entry->HomeTeam],
@@ -105,9 +110,31 @@ class ScrapeFixturesCommand extends Command
                 $game->get_away_from_slug = $entry->AwayTeam;
             }
 
-            if (!empty($entry->AwayTeam) && $entry->AwayTeam != 'To be announced' && !is_numeric(
-                    substr($entry->AwayTeam, 0, 1)
-                )) {
+            if (strpos($entry->HomeTeam, 'Winners of') !== false) {
+                $refKey = str_replace('Winners of ', '', $entry->HomeTeam);
+                $game->home_from_winner_game_id = $gameIds[$refKey];
+            }
+
+            if (strpos($entry->AwayTeam, 'Winners of') !== false) {
+                $refKey = str_replace('Winners of ', '', $entry->AwayTeam);
+                $game->away_from_winner_game_id = $gameIds[$refKey];
+            }
+
+            if (strpos($entry->HomeTeam, 'Losers of') !== false) {
+                $refKey = str_replace('Losers of ', '', $entry->HomeTeam);
+                $game->home_from_loser_game_id = $gameIds[$refKey];
+            }
+
+            if (strpos($entry->AwayTeam, 'Losers of') !== false) {
+                $refKey = str_replace('Losers of ', '', $entry->AwayTeam);
+                $game->away_from_loser_game_id = $gameIds[$refKey];
+            }
+
+            if (!empty($entry->AwayTeam) &&
+                $entry->AwayTeam != 'To be announced' &&
+                !is_numeric(substr($entry->AwayTeam, 0, 1)) &&
+                strpos($entry->AwayTeam, 'Winners of') === false &&
+                strpos($entry->AwayTeam, 'Losers of') === false) {
                 if (empty($teams[$entry->AwayTeam])) {
                     $teamAway = Team::updateOrCreate(
                         ['name' => $entry->AwayTeam, 'icon' => $entry->AwayTeam],
@@ -141,6 +168,7 @@ class ScrapeFixturesCommand extends Command
             }
 
             $game->save();
+            $gameIds[$game->match_number] = $game->id;
 
             $bar->advance();
         }

@@ -54,6 +54,7 @@ class GameService
         if ($sourceGame->finished != 1) {
             return $sourceGame;
         }
+
         if (empty($sourceGame->winner_id != 1)) {
             return $sourceGame;
         }

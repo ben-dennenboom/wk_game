@@ -17,14 +17,12 @@ class TournamentService
     {
         $key = substr($group->name, -1);
 
-        var_dump($key);
         $result = self::getGroupResults($group);
 
         $games = Game::orWhere('get_home_from_slug', 'LIKE', '%'.$key . '%')
             ->orWhere('get_away_from_slug', 'LIKE', '%'.$key . '%')
             ->get();
 
-        var_dump(count($games));
         foreach ($games as $game) {
             $homeSlug = $game->get_home_from_slug;
 
